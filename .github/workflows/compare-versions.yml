@@ -1,0 +1,43 @@
+name: Compare v2.1.1 vs v2.2.0
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  test-v2-1-1-current-version:
+    name: ❌ BEFORE - azure/login v2.1.1 (current)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove Azure CLI
+        run: sudo apt-get remove -y azure-cli
+
+      - name: Use azure/login v2.1.1 (current version in Digger)
+        uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a # v2.1.1
+        if: false  # Skip main step
+        continue-on-error: true  # Don't fail the job on cleanup warning
+
+      - name: Expected result
+        run: |
+          echo "⚠️  With v2.1.1, a cleanup warning appears above:"
+          echo "   'Login cleanup failed with Error: Unable to locate executable file: az...'"
+
+  test-v2-2-0-fixed-version:
+    name: ✅ AFTER - azure/login v2.2.0 (fixed)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove Azure CLI
+        run: sudo apt-get remove -y azure-cli
+
+      - name: Use azure/login v2.2.0 with cleanup disabled
+        uses: azure/login@a65d910e8af852a8061c627c456678983e180302 # v2.2.0
+        if: false  # Skip main step
+        env:
+          AZURE_LOGIN_POST_CLEANUP: false
+
+      - name: Success
+        run: |
+          echo "✅ With v2.2.0 + AZURE_LOGIN_POST_CLEANUP=false:"
+          echo "   No cleanup warning appears!"
+          echo "   Search logs for 'Login cleanup' - zero results."
