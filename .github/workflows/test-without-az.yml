@@ -1,0 +1,59 @@
+name: Test Without Azure CLI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-without-fix:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      statuses: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Azure CLI to simulate self-hosted runner
+        run: sudo apt-get remove -y azure-cli
+
+      - name: Test WITHOUT fix (using official digger)
+        uses: diggerhq/digger@vLatest
+        with:
+          setup-azure: false
+          setup-opentofu: true
+          opentofu-version: 1.11.4
+          no-backend: true
+          disable-locking: true
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-with-fix:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      statuses: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Azure CLI to simulate self-hosted runner
+        run: sudo apt-get remove -y azure-cli
+
+      - name: Test WITH fix (using patched digger)
+        uses: AyhanSetirekli/digger@fix/disable-azure-cleanup-when-not-used
+        with:
+          setup-azure: false
+          setup-opentofu: true
+          opentofu-version: 1.11.4
+          no-backend: true
+          disable-locking: true
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
