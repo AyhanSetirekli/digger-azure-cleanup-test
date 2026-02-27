@@ -1,0 +1,33 @@
+name: Test Azure Cleanup Fix
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+jobs:
+  test-digger-with-fix:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'digger'))
+
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      statuses: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test with Azure cleanup fix
+        uses: AyhanSetirekli/digger@fix/disable-azure-cleanup-when-not-used
+        with:
+          setup-azure: false
+          setup-opentofu: true
+          opentofu-version: 1.11.4
+          no-backend: true
+          disable-locking: true
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
