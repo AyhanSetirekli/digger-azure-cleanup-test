@@ -2,6 +2,8 @@ name: Compare diggerhq/digger vLatest vs v0.6.145
 
 on:
   workflow_dispatch:
+  push:
+    branches: [test/v0.6.145-azure-fix]
 
 jobs:
   test-vLatest:
