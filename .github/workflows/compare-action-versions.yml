@@ -1,0 +1,53 @@
+name: Compare diggerhq/digger vLatest vs v0.6.145
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-vLatest:
+    name: "❌ BEFORE - diggerhq/digger@vLatest (azure/login v2.1.1)"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Azure CLI to simulate non-Azure runner
+        run: sudo apt-get remove -y azure-cli
+
+      - name: Run digger@vLatest with setup-azure false
+        uses: diggerhq/digger@vLatest
+        continue-on-error: true
+        with:
+          setup-azure: "false"
+          no-backend: "true"
+          disable-locking: "true"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Expected
+        run: echo "⚠️  Check above for azure/login cleanup warning (v2.1.1 post-cleanup runs az logout, fails as az not installed)"
+
+  test-v0-6-145:
+    name: "✅ AFTER - diggerhq/digger@v0.6.145 (azure/login v2.2.0)"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Azure CLI to simulate non-Azure runner
+        run: sudo apt-get remove -y azure-cli
+
+      - name: Run digger@v0.6.145 with setup-azure false
+        uses: diggerhq/digger@v0.6.145
+        continue-on-error: true
+        with:
+          setup-azure: "false"
+          no-backend: "true"
+          disable-locking: "true"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Expected
+        run: echo "✅ No azure/login cleanup warning — v2.2.0 post-cleanup disabled via AZURE_LOGIN_POST_CLEANUP=false"
