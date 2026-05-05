@@ -46,8 +46,8 @@ jobs:
       - name: Remove Azure CLI to simulate self-hosted runner
         run: sudo apt-get remove -y azure-cli
 
-      - name: Test WITH fix (using patched digger)
-        uses: AyhanSetirekli/digger@fix/disable-azure-cleanup-when-not-used
+      - name: Test WITH fix (using official v0.6.145)
+        uses: diggerhq/digger@v0.6.145
         with:
           setup-azure: false
           setup-opentofu: true
